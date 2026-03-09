@@ -1,0 +1,75 @@
+version: "3.9"
+
+services:
+  # ── FastAPI Backend ──────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ..
+      dockerfile: infra/dockerfile
+    container_name: healthai-api
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=development
+      - DATABASE_URL=postgresql://healthai:password@db:5432/healthai_db
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ../ml/models:/app/ml/models
+    restart: unless-stopped
+    networks:
+      - healthai-net
+
+  # ── PostgreSQL (RDS locally) ─────────────────────────────────────────────────
+  db:
+    image: postgres:15-alpine
+    container_name: healthai-db
+    environment:
+      POSTGRES_USER: healthai
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: healthai_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U healthai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - healthai-net
+
+  # ── Redis (session cache) ────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: healthai-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - healthai-net
+
+  # ── LocalStack (mock AWS) ────────────────────────────────────────────────────
+  localstack:
+    image: localstack/localstack:latest
+    container_name: healthai-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs,cloudwatch
+      - DEFAULT_REGION=us-east-1
+    volumes:
+      - localstack_data:/tmp/localstack
+    networks:
+      - healthai-net
+
+volumes:
+  postgres_data:
+  localstack_data:
+
+networks:
+  healthai-net:
+    driver: bridge
