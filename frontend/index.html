@@ -20,7 +20,6 @@
     --text-light: #9a9a9a;
     --border: #e0dbd4;
     --shadow: 0 4px 24px rgba(0,0,0,0.07);
-    --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
     --radius: 20px;
     --radius-sm: 12px;
     --user-bubble: #1a6b4a;
@@ -29,17 +28,19 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
   body {
     font-family: 'DM Sans', sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
   }
 
-  /* ── Background texture ── */
   body::before {
     content: '';
     position: fixed;
@@ -51,6 +52,21 @@
     z-index: 0;
   }
 
+  /* ── EMERGENCY BANNER ── */
+  .emergency-banner {
+    background: var(--emergency);
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    display: none;
+    z-index: 20;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .emergency-banner.visible { display: block; }
+
   /* ── HEADER ── */
   header {
     position: relative;
@@ -58,10 +74,11 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    padding: 18px 28px;
+    padding: 16px 28px;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
     box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    flex-shrink: 0;
   }
 
   .logo-wrap {
@@ -115,6 +132,7 @@
     overflow: hidden;
     position: relative;
     z-index: 1;
+    min-height: 0;
   }
 
   /* ── SIDEBAR ── */
@@ -128,6 +146,10 @@
     gap: 24px;
   }
 
+  aside::-webkit-scrollbar { width: 4px; }
+  aside::-webkit-scrollbar-track { background: transparent; }
+  aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
   .sidebar-section h3 {
     font-size: 11px;
     font-weight: 600;
@@ -137,7 +159,6 @@
     margin-bottom: 12px;
   }
 
-  /* NLP Panel */
   .nlp-panel {
     background: var(--surface2);
     border: 1px solid var(--border);
@@ -148,11 +169,7 @@
     gap: 14px;
   }
 
-  .nlp-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+  .nlp-row { display: flex; flex-direction: column; gap: 6px; }
 
   .nlp-label {
     font-size: 11px;
@@ -194,20 +211,13 @@
     font-size: 12px;
     font-weight: 500;
   }
-
   .badge-green  { background: var(--accent-light); color: var(--accent); }
   .badge-yellow { background: #fef9e7; color: #b7770d; }
   .badge-orange { background: #fef0e6; color: #c45e1e; }
   .badge-red    { background: var(--emergency-light); color: var(--emergency); }
-  .badge-gray   { background: var(--surface2); color: var(--text-muted); }
+  .badge-gray   { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
 
-  /* Entities */
-  .entity-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    min-height: 24px;
-  }
+  .entity-tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; }
 
   .entity-tag {
     padding: 4px 10px;
@@ -220,13 +230,8 @@
     animation: fadeIn 0.3s ease;
   }
 
-  .empty-entities {
-    font-size: 12px;
-    color: var(--text-light);
-    font-style: italic;
-  }
+  .empty-entities { font-size: 12px; color: var(--text-light); font-style: italic; }
 
-  /* Quick prompts */
   .quick-btn {
     display: block;
     width: 100%;
@@ -256,12 +261,15 @@
   .chat-area {
     display: flex;
     flex-direction: column;
+    min-height: 0;
     overflow: hidden;
   }
 
+  /* ── MESSAGES — barra de rolagem corrigida ── */
   .messages {
     flex: 1;
-    overflow-y: auto;
+    min-height: 0;
+    overflow-y: scroll;
     padding: 28px 32px;
     display: flex;
     flex-direction: column;
@@ -272,8 +280,8 @@
   .messages::-webkit-scrollbar { width: 6px; }
   .messages::-webkit-scrollbar-track { background: transparent; }
   .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+  .messages::-webkit-scrollbar-thumb:hover { background: #ccc; }
 
-  /* Welcome */
   .welcome-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -285,25 +293,16 @@
     animation: slideUp 0.5s ease;
   }
 
-  .welcome-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-  }
+  .welcome-icon { font-size: 48px; margin-bottom: 12px; }
 
   .welcome-card h2 {
     font-family: 'DM Serif Display', serif;
     font-size: 22px;
     margin-bottom: 8px;
-    color: var(--text);
   }
 
-  .welcome-card p {
-    font-size: 14px;
-    color: var(--text-muted);
-    line-height: 1.6;
-  }
+  .welcome-card p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
 
-  /* Message bubbles */
   .msg-row {
     display: flex;
     align-items: flex-end;
@@ -321,7 +320,7 @@
     flex-shrink: 0;
   }
 
-  .msg-row.bot .msg-avatar  { background: var(--accent-light); }
+  .msg-row.bot  .msg-avatar { background: var(--accent-light); }
   .msg-row.user .msg-avatar { background: var(--accent); }
 
   .msg-bubble {
@@ -356,18 +355,11 @@
     font-size: 11px;
     color: var(--text-light);
     margin-top: 5px;
-    text-align: right;
   }
+  .msg-row.bot  .msg-time { text-align: left; }
+  .msg-row.user .msg-time { text-align: right; }
 
-  .msg-row.bot .msg-time { text-align: left; }
-
-  /* Actions */
-  .action-btns {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
-  }
+  .action-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
 
   .action-btn {
     padding: 7px 14px;
@@ -381,29 +373,11 @@
     cursor: pointer;
     transition: all 0.15s;
   }
+  .action-btn:hover { background: var(--accent); color: white; }
+  .action-btn.emergency-btn { border-color: var(--emergency); color: var(--emergency); }
+  .action-btn.emergency-btn:hover { background: var(--emergency); color: white; }
 
-  .action-btn:hover {
-    background: var(--accent);
-    color: white;
-  }
-
-  .action-btn.emergency-btn {
-    border-color: var(--emergency);
-    color: var(--emergency);
-  }
-
-  .action-btn.emergency-btn:hover {
-    background: var(--emergency);
-    color: white;
-  }
-
-  /* Typing indicator */
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    animation: fadeIn 0.2s ease;
-  }
+  .typing-indicator { display: flex; align-items: center; gap: 10px; animation: fadeIn 0.2s ease; }
 
   .typing-dots {
     display: flex;
@@ -431,12 +405,13 @@
 
   /* ── INPUT BAR ── */
   .input-bar {
-    padding: 20px 32px 24px;
+    padding: 16px 32px 20px;
     background: var(--surface);
     border-top: 1px solid var(--border);
     display: flex;
     gap: 12px;
     align-items: flex-end;
+    flex-shrink: 0;
   }
 
   .input-wrap {
@@ -468,7 +443,6 @@
     max-height: 100px;
     line-height: 1.5;
   }
-
   #chat-input::placeholder { color: var(--text-light); }
 
   .send-btn {
@@ -482,37 +456,18 @@
     flex-shrink: 0;
     box-shadow: 0 4px 12px rgba(26,107,74,0.3);
   }
-
-  .send-btn:hover { background: #145a3d; transform: scale(1.05); }
+  .send-btn:hover  { background: #145a3d; transform: scale(1.05); }
   .send-btn:active { transform: scale(0.97); }
-
   .send-btn svg { fill: white; }
 
-  /* ── Animations ── */
   @keyframes fadeIn  { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
   @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
-
-  /* ── Emergency banner ── */
-  .emergency-banner {
-    background: var(--emergency);
-    color: white;
-    text-align: center;
-    padding: 10px;
-    font-size: 13px;
-    font-weight: 500;
-    display: none;
-    animation: fadeIn 0.3s ease;
-    z-index: 20;
-    position: relative;
-  }
-
-  .emergency-banner.visible { display: block; }
 
   @media (max-width: 768px) {
     .app-layout { grid-template-columns: 1fr; }
     aside { display: none; }
     .messages { padding: 20px 16px; }
-    .input-bar { padding: 14px 16px 18px; }
+    .input-bar { padding: 12px 16px 16px; }
   }
 </style>
 </head>
@@ -534,44 +489,38 @@
 
 <div class="app-layout">
 
-  <!-- ── SIDEBAR ── -->
   <aside>
     <div class="sidebar-section">
       <h3>Análise NLP em tempo real</h3>
       <div class="nlp-panel">
-
         <div class="nlp-row">
           <div class="nlp-label">Intenção detectada</div>
-          <div class="nlp-value" id="intent-display">
+          <div class="nlp-value">
             <span class="badge badge-gray" id="intent-badge">—</span>
           </div>
           <div class="confidence-bar">
             <div class="confidence-fill" id="intent-conf" style="width:0%"></div>
           </div>
         </div>
-
         <div class="nlp-row">
           <div class="nlp-label">Nível de urgência</div>
-          <div class="nlp-value" id="urgency-display">
+          <div class="nlp-value">
             <span class="badge badge-gray" id="urgency-badge">—</span>
           </div>
           <div class="confidence-bar">
             <div class="confidence-fill" id="urgency-conf" style="width:0%"></div>
           </div>
         </div>
-
         <div class="nlp-row">
           <div class="nlp-label">Especialidade sugerida</div>
           <div class="nlp-value" id="specialty-display" style="font-size:12px;color:var(--text-muted)">—</div>
         </div>
-
         <div class="nlp-row">
           <div class="nlp-label">Entidades extraídas</div>
           <div class="entity-tags" id="entity-tags">
             <span class="empty-entities">Nenhuma detectada</span>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -583,12 +532,14 @@
         <button class="quick-btn" onclick="sendQuick(this)">💊 Dúvida sobre meu medicamento</button>
         <button class="quick-btn" onclick="sendQuick(this)">🔬 Quando fica pronto meu exame?</button>
         <button class="quick-btn" onclick="sendQuick(this)">❌ Preciso cancelar minha consulta</button>
+        <button class="quick-btn" onclick="sendQuick(this)">😴 Estou com insônia há semanas</button>
+        <button class="quick-btn" onclick="sendQuick(this)">🩺 Quero fazer um checkup geral</button>
+        <button class="quick-btn" onclick="sendQuick(this)">👁️ Minha visão está embaçada</button>
         <button class="quick-btn" onclick="sendQuick(this)" style="color:var(--emergency);border-color:rgba(192,57,43,0.2);background:var(--emergency-light)">🚨 Dor no peito, falta de ar</button>
       </div>
     </div>
   </aside>
 
-  <!-- ── CHAT AREA ── -->
   <div class="chat-area">
     <div class="messages" id="messages">
       <div class="welcome-card">
@@ -611,60 +562,72 @@
 </div>
 
 <script>
-// ── Demo NLP Engine (client-side simulation) ─────────────────────────────────
+// ── NLP Engine ────────────────────────────────────────────────────────────────
 
 const EMERGENCY_KEYWORDS = [
   "dor no peito", "falta de ar", "desmaio", "infarto", "avc", "convulsão",
-  "sangramento intenso", "perda de consciência", "socorro urgente", "não consigo respirar"
+  "sangramento intenso", "perda de consciência", "socorro urgente",
+  "não consigo respirar", "parei de respirar", "overdose", "envenenamento",
+  "acidente grave", "fratura exposta", "queimadura grave"
 ];
 
 const INTENT_RULES = [
-  { pattern: /agendar|marcar|consulta|horário|quero uma/i, intent: "agendamento", icon: "🗓️" },
-  { pattern: /cancelar|desmarcar|remarcar/i, intent: "cancelamento", icon: "❌" },
-  { pattern: /exame|resultado|laboratório|tomografia/i, intent: "dúvida exame", icon: "🔬" },
-  { pattern: /dor|febre|sintoma|doente|mal\b|náusea|tontura|tosse/i, intent: "sintomas", icon: "🩺" },
-  { pattern: /emergência|urgente|socorro|ajuda/i, intent: "emergência", icon: "🚨" },
-  { pattern: /^(oi|olá|bom dia|boa tarde|boa noite|hello)/i, intent: "saudação", icon: "👋" },
-  { pattern: /medicamento|remédio|receita|farmácia/i, intent: "medicamento", icon: "💊" },
+  { pattern: /agendar|marcar|consulta|horário|quero uma|gostaria de|disponibilidade/i, intent: "agendamento", icon: "🗓️" },
+  { pattern: /cancelar|desmarcar|remarcar|desistir da consulta/i, intent: "cancelamento", icon: "❌" },
+  { pattern: /exame|resultado|laboratório|tomografia|raio.?x|ultrassom|ressonância/i, intent: "dúvida exame", icon: "🔬" },
+  { pattern: /dor|febre|sintoma|doente|mal\b|náusea|tontura|tosse|cansaço|fraqueza|inchaço|sangramento|vômito|diarreia|prisão de ventre|falta de apetite/i, intent: "sintomas", icon: "🩺" },
+  { pattern: /emergência|urgente|socorro|ajuda urgente/i, intent: "emergência", icon: "🚨" },
+  { pattern: /medicamento|remédio|receita|farmácia|bula|dosagem|posologia|interação/i, intent: "medicamento", icon: "💊" },
+  { pattern: /insônia|dormir|sono|acordando|pesadelo/i, intent: "sono", icon: "😴" },
+  { pattern: /checkup|preventiv|rotina|geral|saúde em dia/i, intent: "checkup", icon: "🩺" },
+  { pattern: /visão|olho|óculos|enxergar|embaçad/i, intent: "oftalmologia", icon: "👁️" },
+  { pattern: /pressão|hipertensão|hipotensão/i, intent: "pressão", icon: "💓" },
+  { pattern: /diabetes|glicose|açúcar no sangue/i, intent: "diabetes", icon: "🩸" },
+  { pattern: /gravidez|grávida|gestação|pré.natal/i, intent: "gravidez", icon: "🤰" },
+  { pattern: /depressão|ansiedade|pânico|angústia|tristeza|humor|psicológico|psiquiátrico/i, intent: "saúde mental", icon: "🧠" },
+  { pattern: /criança|filho|pediatr|infantil|bebê/i, intent: "pediatria", icon: "👶" },
+  { pattern: /plano|convênio|particular|cobertura|autorização/i, intent: "convênio", icon: "📋" },
+  { pattern: /^(oi|olá|bom dia|boa tarde|boa noite|hello|ei\b)/i, intent: "saudação", icon: "👋" },
 ];
 
 const URGENCY_RULES = [
-  { words: ["dor intensa","sangramento","desmaio","convulsão","vomitando sangue","febre alta","40 graus","41 graus"], level: "crítica",  badge: "badge-red",    weight: 10 },
-  { words: ["muita dor","piorando","forte dor","difícil respirar","pressão alta"], level: "alta",    badge: "badge-orange", weight: 5  },
-  { words: ["dor moderada","há dias","piora","dificuldade","febre"], level: "média",   badge: "badge-yellow", weight: 2  },
-  { words: ["rotina","checkup","renovar","preventiva","resultado"], level: "baixa",   badge: "badge-green",  weight: 0  },
+  { words: ["dor intensa","sangramento","desmaio","convulsão","vomitando sangue","febre alta","40 graus","41 graus","não consigo respirar","overdose"], level: "crítica", badge: "badge-red", weight: 10 },
+  { words: ["muita dor","piorando rápido","forte dor","difícil respirar","pressão muito alta","febre persistente","39 graus"], level: "alta", badge: "badge-orange", weight: 5 },
+  { words: ["dor moderada","há dias","piora","dificuldade","febre","há semanas","cansaço frequente"], level: "média", badge: "badge-yellow", weight: 2 },
+  { words: ["rotina","checkup","renovar","preventiva","resultado","insônia","visão"], level: "baixa", badge: "badge-green", weight: 0 },
 ];
 
 const SPECIALTY_MAP = [
-  { keywords: ["coração","dor no peito","palpitação","pressão"], specialty: "Cardiologia" },
-  { keywords: ["cabeça","enxaqueca","tontura","convulsão","neurológico"], specialty: "Neurologia" },
-  { keywords: ["osso","fratura","coluna","joelho","ortopedia"], specialty: "Ortopedia" },
-  { keywords: ["criança","infantil","pediatria"], specialty: "Pediatria" },
-  { keywords: ["pele","manchas","dermatite"], specialty: "Dermatologia" },
-  { keywords: ["olho","visão","oftalmologia"], specialty: "Oftalmologia" },
-  { keywords: ["depressão","ansiedade","psiquiátrico"], specialty: "Psiquiatria" },
-  { keywords: ["ginecologia","menstruação","gravidez"], specialty: "Ginecologia" },
+  { keywords: ["coração","dor no peito","palpitação","pressão","arritmia","infarto"], specialty: "Cardiologia" },
+  { keywords: ["cabeça","enxaqueca","tontura","convulsão","neurológico","avc","formigamento"], specialty: "Neurologia" },
+  { keywords: ["osso","fratura","coluna","joelho","ortopedia","tendão","ligamento"], specialty: "Ortopedia" },
+  { keywords: ["criança","infantil","pediatria","bebê","filho pequeno"], specialty: "Pediatria" },
+  { keywords: ["pele","manchas","dermatite","acne","coceira","urticária"], specialty: "Dermatologia" },
+  { keywords: ["olho","visão","oftalmologia","embaçado","óculos"], specialty: "Oftalmologia" },
+  { keywords: ["depressão","ansiedade","pânico","psiquiátrico","psicológico","humor"], specialty: "Psiquiatria" },
+  { keywords: ["ginecologia","menstruação","gravidez","útero","ovário","pré-natal"], specialty: "Ginecologia" },
+  { keywords: ["pulmão","respiração","tosse","bronquite","asma","pneumonia"], specialty: "Pneumologia" },
+  { keywords: ["estômago","intestino","diarreia","gastrite","refluxo","fígado"], specialty: "Gastroenterologia" },
+  { keywords: ["rim","urina","infecção urinária","pedra no rim"], specialty: "Urologia" },
+  { keywords: ["diabetes","glicose","tireoide","hormônio","endócrino"], specialty: "Endocrinologia" },
+  { keywords: ["insônia","sono","dormir"], specialty: "Clínico Geral" },
 ];
 
 const SYMPTOM_PATTERNS = [
   /dor (?:de |no |na |nos |nas )?\w+/gi,
-  /(?:febre|náusea|vômito|tontura|fraqueza|tosse|coriza|inchaço|cansaço|palpitação)\w*/gi,
+  /(?:febre|náusea|vômito|tontura|fraqueza|tosse|coriza|inchaço|cansaço|palpitação|diarreia|insônia|sangramento)\w*/gi,
 ];
 
 function analyzeText(text) {
   const lower = text.toLowerCase();
-
-  // Emergency check
   const isEmergency = EMERGENCY_KEYWORDS.some(kw => lower.includes(kw));
 
-  // Intent
   let intent = { intent: "geral", icon: "💬" };
   for (const rule of INTENT_RULES) {
     if (rule.pattern.test(lower)) { intent = rule; break; }
   }
   if (isEmergency) intent = { intent: "emergência", icon: "🚨" };
 
-  // Urgency
   let urgencyScore = 0;
   let urgency = { level: "baixa", badge: "badge-green" };
   for (const rule of URGENCY_RULES) {
@@ -676,7 +639,6 @@ function analyzeText(text) {
   else if (urgencyScore >= 5) urgency = { level: "alta", badge: "badge-orange" };
   else if (urgencyScore >= 2) urgency = { level: "média", badge: "badge-yellow" };
 
-  // Symptoms
   let symptoms = [];
   for (const pat of SYMPTOM_PATTERNS) {
     const matches = lower.matchAll(pat);
@@ -684,22 +646,23 @@ function analyzeText(text) {
   }
   symptoms = [...new Set(symptoms)].slice(0, 5);
 
-  // Specialty
   let specialty = isEmergency ? "Pronto-Socorro" : "Clínico Geral";
   for (const s of SPECIALTY_MAP) {
     if (s.keywords.some(k => lower.includes(k))) { specialty = s.specialty; break; }
   }
   if (isEmergency) specialty = "Pronto-Socorro 🚨";
 
-  return { isEmergency, intent, urgency, symptoms, specialty,
-    intentConf: 0.7 + Math.random() * 0.25,
-    urgencyConf: 0.65 + Math.random() * 0.3,
+  return {
+    isEmergency, intent, urgency, symptoms, specialty,
+    intentConf: 0.72 + Math.random() * 0.25,
+    urgencyConf: 0.68 + Math.random() * 0.28,
   };
 }
 
-// ── Response Generator ────────────────────────────────────────────────────────
+// ── Respostas expandidas ──────────────────────────────────────────────────────
 
 const RESPONSES = {
+
   emergência: () => `🚨 **ATENÇÃO — EMERGÊNCIA DETECTADA**
 
 Pelos sintomas descritos, você pode estar passando por uma situação de risco de vida.
@@ -728,16 +691,17 @@ Deseja cancelar definitivamente ou prefere remarcar para outra data?`,
 • **Pelo código do pedido** médico (número no rodapé da solicitação)
 • **Pelo CPF** — busco todos os exames vinculados ao seu cadastro
 
-O prazo médio de resultado é de **24–72h** para exames laboratoriais e **48–96h** para exames de imagem. Qual exame você está aguardando?`,
+O prazo médio de resultado é de **24–72h** para laboratoriais e **48–96h** para exames de imagem. Qual exame você está aguardando?`,
 
   sintomas: (analysis) => {
     const spec = analysis.specialty;
-    return `Obrigado por compartilhar isso comigo. Vou fazer algumas perguntas para entender melhor a situação.
-
-${analysis.symptoms.length > 0 ? `Notei que você mencionou: **${analysis.symptoms.join(', ')}**.` : ''}
-
-${analysis.urgency.level === 'alta' || analysis.urgency.level === 'média'
-  ? `⚠️ Pelos sintomas descritos, recomendo uma **avaliação médica em breve** — idealmente hoje ou amanhã.\n\n` : ''}Baseado no que você relatou, o médico mais indicado seria um **${spec}**.
+    const sintomas = analysis.symptoms.length > 0
+      ? `Notei que você mencionou: **${analysis.symptoms.join(', ')}**.\n\n`
+      : '';
+    const urgWarn = (analysis.urgency.level === 'alta' || analysis.urgency.level === 'média')
+      ? `⚠️ Pelos sintomas descritos, recomendo uma **avaliação médica em breve**.\n\n`
+      : '';
+    return `Obrigado por compartilhar isso comigo. ${sintomas}${urgWarn}Baseado no que você relatou, o médico mais indicado seria um **${spec}**.
 
 **Há quanto tempo** você está com esses sintomas? Está fazendo uso de algum medicamento?`;
   },
@@ -746,7 +710,90 @@ ${analysis.urgency.level === 'alta' || analysis.urgency.level === 'média'
 • **Nome do medicamento** e dosagem prescrita
 • **Nome do médico** que prescreveu
 
-Lembre-se: nunca altere doses ou pare de tomar medicamentos sem orientação médica. Posso ajudá-lo a **agendar uma consulta de retorno** se necessário.`,
+⚠️ Nunca altere doses ou pare de tomar medicamentos sem orientação médica.
+
+Posso ajudá-lo a **agendar uma consulta de retorno** se necessário. Qual é o medicamento em questão?`,
+
+  sono: () => `Insônia e distúrbios do sono são mais comuns do que parecem e merecem atenção. Algumas perguntas para entender melhor:
+
+• Há **quanto tempo** está com dificuldade para dormir?
+• Tem dificuldade para **pegar no sono** ou acorda **durante a noite**?
+• Sente muito **estresse ou ansiedade** antes de dormir?
+
+Dependendo da causa, pode ser indicado um **Clínico Geral** para avaliação inicial, ou um **Psiquiatra/Neurologista** se houver componente emocional ou neurológico. Quer agendar uma consulta?`,
+
+  checkup: () => `Ótima iniciativa! Fazer checkups regulares é fundamental para a saúde preventiva. ✅
+
+Um checkup completo geralmente inclui:
+• **Exames de sangue** (hemograma, glicose, colesterol, TSH)
+• **Aferição de pressão arterial**
+• **Avaliação cardiovascular** (ECG para maiores de 40 anos)
+• **Consulta com Clínico Geral**
+
+Com que **frequência** você costuma fazer checkups? Posso agendar uma consulta com nosso Clínico Geral para começar a avaliação.`,
+
+  oftalmologia: () => `Problemas de visão devem ser avaliados por um **Oftalmologista**. Alguns sintomas que merecem atenção imediata:
+
+• Visão embaçada súbita → pode indicar alteração de pressão ocular
+• Flashes de luz ou "moscas volantes" → avaliar retina
+• Dor nos olhos → glaucoma ou inflamação
+
+Se a mudança foi **gradual**, pode ser apenas necessidade de óculos ou atualização da graduação. Se foi **súbita**, procure atendimento com mais urgência.
+
+Deseja agendar uma consulta com o **Oftalmologista**?`,
+
+  pressão: () => `Alterações na pressão arterial precisam de acompanhamento médico. Algumas orientações gerais:
+
+• **Pressão alta (>140/90)**: reduzir sal, evitar estresse, praticar atividade física
+• **Pressão baixa (<90/60)**: hidratar-se bem, evitar ficar em pé por muito tempo
+
+⚠️ Se estiver sentindo **dor de cabeça intensa, tontura forte ou visão turva**, procure atendimento imediato.
+
+Está tomando algum medicamento para pressão? Posso agendar uma consulta com **Cardiologista** ou **Clínico Geral**.`,
+
+  diabetes: () => `O controle do diabetes é fundamental para evitar complicações. Algumas perguntas importantes:
+
+• Já tem **diagnóstico de diabetes** ou está com suspeita?
+• Está fazendo **monitoramento da glicose** regularmente?
+• Sente sintomas como **sede excessiva, urinar muito ou visão embaçada**?
+
+Recomendo consulta com **Endocrinologista** para avaliação completa e ajuste do tratamento se necessário. Deseja agendar?`,
+
+  gravidez: () => `Parabéns! O acompanhamento pré-natal é essencial para a saúde da mãe e do bebê. 🤰
+
+O pré-natal deve começar o quanto antes, idealmente no **1º trimestre**. As consultas incluem:
+• Exames de sangue e urina
+• Ultrassons de acompanhamento
+• Avaliação de pressão e peso
+• Orientações nutricionais
+
+Temos **Ginecologistas/Obstetras** disponíveis. Qual é a semana de gestação aproximada? Posso agendar a primeira consulta de pré-natal.`,
+
+  "saúde mental": () => `Obrigado por compartilhar isso. Cuidar da saúde mental é tão importante quanto a saúde física. 💙
+
+Alguns sinais que indicam a necessidade de apoio profissional:
+• Tristeza ou ansiedade **persistente** por mais de 2 semanas
+• Dificuldade para realizar **atividades do dia a dia**
+• Alterações no **sono ou apetite**
+• Pensamentos negativos frequentes
+
+Temos **Psicólogos** e **Psiquiatras** disponíveis. O atendimento é sigiloso e acolhedor. Deseja agendar uma consulta?`,
+
+  pediatria: () => `Para o atendimento de crianças, contamos com nossa equipe de **Pediatria** especializada. 👶
+
+Para agilizar o atendimento, me informe:
+• **Idade** da criança
+• **Sintomas** observados e há quanto tempo
+• Se a criança tem alguma **condição preexistente** ou alergia
+
+Em caso de febre acima de **38,5°C em bebês** ou sintomas respiratórios intensos, recomendo atendimento urgente. Deseja agendar?`,
+
+  convênio: () => `Atendemos pelos principais convênios e também particular. Para verificar sua cobertura:
+
+• **Convênio**: informe o nome do plano e número da carteirinha
+• **Particular**: posso informar os valores de consulta por especialidade
+
+Algumas especialidades podem precisar de **autorização prévia** do plano. Qual convênio você possui? Posso verificar a cobertura para a especialidade desejada.`,
 
   saudação: () => `Olá! Que bom ter você aqui. 😊
 
@@ -754,59 +801,54 @@ Sou o **HealthAI Assistant** — seu assistente de saúde inteligente. Posso aju
 • 🗓️ Agendamento de consultas
 • 🩺 Triagem de sintomas
 • 🔬 Consulta de exames
-• ℹ️ Informações sobre especialidades
+• 💊 Dúvidas sobre medicamentos
+• 🧠 Saúde mental e bem-estar
+• 👶 Pediatria e pré-natal
 
 Como posso auxiliá-lo hoje?`,
 
-  geral: () => `Entendido! Como posso ajudá-lo melhor?
+  geral: () => `Entendido! Pode me contar mais detalhes sobre o que está sentindo ou o que precisa?
 
-Você pode me contar mais sobre o que está sentindo, ou escolher uma das opções ao lado para agilizar o atendimento. Estou aqui para orientá-lo da melhor forma possível.`,
+Estou aqui para orientá-lo da melhor forma possível — seja para triagem de sintomas, agendamento de consultas ou qualquer dúvida sobre saúde.`,
 };
 
-function generateResponse(analysis, text) {
-  const handler = RESPONSES[analysis.intent.intent] || RESPONSES.geral;
+function generateResponse(analysis) {
   if (analysis.isEmergency) return RESPONSES.emergência();
+  const handler = RESPONSES[analysis.intent.intent] || RESPONSES.geral;
   return typeof handler === 'function' ? handler(analysis) : handler;
 }
 
-// ── UI Functions ──────────────────────────────────────────────────────────────
-
-let sessionId = 'sess-' + Math.random().toString(36).substr(2, 9);
+// ── UI ────────────────────────────────────────────────────────────────────────
 
 function updateNLPPanel(analysis) {
-  // Intent
   const intentBadge = document.getElementById('intent-badge');
   intentBadge.className = `badge ${analysis.isEmergency ? 'badge-red' : 'badge-green'}`;
   intentBadge.textContent = `${analysis.intent.icon} ${analysis.intent.intent}`;
   document.getElementById('intent-conf').style.width = (analysis.intentConf * 100) + '%';
 
-  // Urgency
   const urgencyBadge = document.getElementById('urgency-badge');
   urgencyBadge.className = `badge ${analysis.urgency.badge}`;
   urgencyBadge.textContent = analysis.urgency.level;
   document.getElementById('urgency-conf').style.width = (analysis.urgencyConf * 100) + '%';
 
-  // Specialty
   document.getElementById('specialty-display').textContent = analysis.specialty;
 
-  // Entities
   const tagsEl = document.getElementById('entity-tags');
-  if (analysis.symptoms.length > 0) {
-    tagsEl.innerHTML = analysis.symptoms
-      .map(s => `<span class="entity-tag">${s}</span>`)
-      .join('');
-  } else {
-    tagsEl.innerHTML = '<span class="empty-entities">Nenhuma detectada</span>';
-  }
+  tagsEl.innerHTML = analysis.symptoms.length > 0
+    ? analysis.symptoms.map(s => `<span class="entity-tag">${s}</span>`).join('')
+    : '<span class="empty-entities">Nenhuma detectada</span>';
 
-  // Emergency banner
   const banner = document.getElementById('emergency-banner');
-  if (analysis.isEmergency) banner.classList.add('visible');
-  else banner.classList.remove('visible');
+  analysis.isEmergency ? banner.classList.add('visible') : banner.classList.remove('visible');
 }
 
 function formatTime() {
   return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function scrollToBottom() {
+  const messages = document.getElementById('messages');
+  messages.scrollTop = messages.scrollHeight;
 }
 
 function addMessage(text, role, analysis = null) {
@@ -822,14 +864,10 @@ function addMessage(text, role, analysis = null) {
   avatar.textContent = isUser ? '👤' : '🏥';
 
   const content = document.createElement('div');
-  content.style.display = 'flex';
-  content.style.flexDirection = 'column';
-  content.style.alignItems = isUser ? 'flex-end' : 'flex-start';
+  content.style.cssText = `display:flex;flex-direction:column;align-items:${isUser ? 'flex-end' : 'flex-start'}`;
 
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
-
-  // Format markdown-ish
   bubble.innerHTML = text
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\n/g, '<br>');
@@ -841,17 +879,16 @@ function addMessage(text, role, analysis = null) {
   content.appendChild(bubble);
   content.appendChild(time);
 
-  // Action buttons for bot messages
   if (!isUser && analysis) {
     const actions = getActions(analysis);
     if (actions.length > 0) {
       const btns = document.createElement('div');
       btns.className = 'action-btns';
-      actions.forEach(action => {
+      actions.forEach(a => {
         const btn = document.createElement('button');
-        btn.className = `action-btn ${action.emergency ? 'emergency-btn' : ''}`;
-        btn.textContent = action.label;
-        btn.onclick = () => sendQuickText(action.label.replace(/^[^\w]+/, '').trim());
+        btn.className = `action-btn ${a.emergency ? 'emergency-btn' : ''}`;
+        btn.textContent = a.label;
+        btn.onclick = () => sendQuickText(a.text || a.label.replace(/^[^\w]+/, '').trim());
         btns.appendChild(btn);
       });
       bubble.appendChild(btns);
@@ -861,22 +898,26 @@ function addMessage(text, role, analysis = null) {
   row.appendChild(avatar);
   row.appendChild(content);
   messages.appendChild(row);
-  messages.scrollTop = messages.scrollHeight;
+  scrollToBottom();
 }
 
 function getActions(analysis) {
   const actions = [];
-  if (analysis.intent.intent === 'agendamento' || analysis.intent.intent === 'sintomas') {
-    actions.push({ label: '🗓️ Agendar consulta' });
+  const intent = analysis.intent.intent;
+
+  if (['agendamento','sintomas','checkup','sono','oftalmologia','pressão','diabetes','gravidez','saúde mental','pediatria'].includes(intent)) {
+    actions.push({ label: '🗓️ Agendar consulta', text: 'quero agendar uma consulta' });
   }
   if (analysis.urgency.level === 'alta' || analysis.urgency.level === 'crítica' || analysis.isEmergency) {
-    actions.push({ label: '🚨 Ligar SAMU 192', emergency: true });
-    actions.push({ label: '🏥 Ver pronto-socorro' });
+    actions.push({ label: '🚨 Ligar SAMU 192', text: 'ligue para o SAMU 192', emergency: true });
+    actions.push({ label: '🏥 Pronto-socorro', text: 'ir ao pronto-socorro' });
   }
-  if (analysis.specialty && analysis.specialty !== 'Clínico Geral' && analysis.specialty !== 'Pronto-Socorro 🚨') {
-    actions.push({ label: `👨‍⚕️ Ver ${analysis.specialty}` });
+  if (analysis.specialty && !['Clínico Geral','Pronto-Socorro 🚨','Pronto-Socorro'].includes(analysis.specialty)) {
+    actions.push({ label: `👨‍⚕️ Ver ${analysis.specialty}`, text: `quero consulta com ${analysis.specialty}` });
   }
-  if (!actions.length) actions.push({ label: '💬 Falar com atendente' });
+  if (!actions.length) {
+    actions.push({ label: '💬 Falar com atendente', text: 'falar com atendente' });
+  }
   return actions.slice(0, 3);
 }
 
@@ -895,7 +936,7 @@ function showTyping() {
   typing.appendChild(avatar);
   typing.appendChild(dots);
   messages.appendChild(typing);
-  messages.scrollTop = messages.scrollHeight;
+  scrollToBottom();
 }
 
 function removeTyping() {
@@ -910,25 +951,21 @@ async function sendMessage() {
 
   input.value = '';
   autoResize(input);
-
   addMessage(text, 'user');
 
   const analysis = analyzeText(text);
   updateNLPPanel(analysis);
-
   showTyping();
 
-  // Simulate API latency
-  await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
-
+  await new Promise(r => setTimeout(r, 700 + Math.random() * 500));
   removeTyping();
 
-  const response = generateResponse(analysis, text);
+  const response = generateResponse(analysis);
   addMessage(response, 'bot', analysis);
 }
 
 function sendQuick(btn) {
-  const text = btn.textContent.replace(/^[^\w]+/, '').trim();
+  const text = btn.textContent.replace(/^[\s\S]{2}/, '').trim();
   document.getElementById('chat-input').value = text;
   sendMessage();
 }
@@ -950,7 +987,6 @@ function autoResize(el) {
   el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
 
-// Focus input on load
 document.getElementById('chat-input').focus();
 </script>
 </body>
