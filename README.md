@@ -1,61 +1,140 @@
-# HealthAI Assistant
+# 🧠 HealthAI Assistant
 
-API de assistente de saude com FastAPI, organizada com principios de Clean Architecture.
+API de assistente de saúde desenvolvida com **FastAPI**, estruturada com princípios de **Clean Architecture**, incorporando um **Agente de IA** para processamento inteligente de linguagem natural e tomada de decisão.
 
-## Visao Geral
+---
 
-O projeto separa regras de negocio, casos de uso, adaptadores de infraestrutura e camada HTTP para facilitar manutencao, testes e evolucao.
+## 📌 Visão Geral
 
-## Arquitetura (Clean)
+O HealthAI Assistant implementa um **Agente de IA orientado a tarefas**, capaz de:
 
-- Domain (`app/models`): entidades, enums e contratos de dados (Pydantic).
-- Application (`app/agents`): orquestracao de casos de uso.
-- Infrastructure (`app/services`): implementacoes concretas (NLP e LLM/OpenAI).
-- Interface/Presentation (`app/routers`, `app/main.py`): endpoints e composicao da API.
-- Cross-cutting (`app/utils`): configuracao e logging.
+* Interpretar mensagens de usuários
+* Classificar intenções (ex: emergência médica)
+* Tomar decisões com base em contexto
+* Gerar respostas com modelos de linguagem (LLMs)
 
-## Estrutura do Projeto
+A arquitetura foi projetada para:
+
+* Separação clara de responsabilidades
+* Escalabilidade
+* Baixo acoplamento
+* Facilidade de evolução para sistemas baseados em agentes
+
+---
+
+## 🤖 Agente de IA
+
+O sistema implementa uma **arquitetura baseada em agentes**, onde um componente central coordena o fluxo de decisão.
+
+### 🔹 Responsabilidades do agente
+
+* Processamento de entrada do usuário
+* Classificação semântica (NLP)
+* Tomada de decisão baseada em regras + LLM
+* Geração de resposta contextual
+
+---
+
+### 🔹 Arquitetura do agente
 
 ```text
-health-ai-assistant/
-+-- app/
-�   +-- main.py
-�   +-- agents/
-�   �   +-- orchestrator.py
-�   +-- models/
-�   �   +-- schemas.py
-�   +-- routers/
-�   �   +-- chat.py
-�   +-- services/
-�   �   +-- ports.py
-�   �   +-- nlp_service.py
-�   �   +-- llm_service.py
-�   +-- utils/
-�       +-- config.py
-�       +-- logger.py
-+-- ml/
-�   +-- training.py
-�   +-- cross_validation.py
-�   +-- inference.py
-+-- infra/
-�   +-- dockerfile
-�   +-- docker-compose.yml
-�   +-- terraform/
-+-- docs/
-�   +-- demo/
-�       +-- healthai-demo.html
-+-- tests/
-+-- pyrightconfig.json
-+-- README.md
+User Input
+   ↓
+Orchestrator (Agent)
+   ↓
+NLP Service → Intent Classification
+   ↓
+LLM Service → Response Generation
+   ↓
+Final Response
 ```
 
-## Endpoints
+---
 
-- `GET /health`: status da API.
-- `GET /`: informacoes basicas.
-- `POST /api/v1/chat/message`: fluxo de mensagem (classificacao + resposta).
+### 🔹 Tipo de agente
 
-Exemplo de request:
+O HealthAI utiliza um modelo híbrido:
+
+* **Rule-based layer** → decisões críticas (ex: emergência)
+* **LLM-based reasoning** → geração de linguagem natural
+* **Orchestrator** → controlador central do agente
+
+---
+
+## 🏗️ Estrutura do Projeto
+
+```bash
+health-ai-assistant/
+├── app/                  # Código principal da aplicação (API + agente)
+├── frontend/             # Interface (opcional)
+├── ml/                   # Pipeline de Machine Learning
+├── tests/                # Testes automatizados
+├── Dockerfile            # Build da aplicação
+├── docker-compose.yml    # Orquestração de containers
+├── requirements.txt      # Dependências
+└── README.md
+```
+
+---
+
+## 🧩 Arquitetura (Clean Architecture)
+
+Dentro da pasta `app/`:
+
+### 🔹 Domain
+
+* Modelos e regras de negócio
+
+### 🔹 Application
+
+* Orquestração do agente (core logic)
+
+### 🔹 Infrastructure
+
+* Serviços externos (NLP, LLM)
+
+### 🔹 Interface
+
+* Endpoints FastAPI
+
+### 🔹 Cross-cutting
+
+* Configuração e logging
+
+---
+
+## 🔄 Fluxo da Aplicação
+
+```text
+Client → FastAPI → AI Agent (Orchestrator) → NLP/LLM → Response
+```
+
+---
+
+## 🤖 Módulo de Machine Learning
+
+```bash
+ml/
+├── training.py
+├── cross_validation.py
+├── inference.py
+```
+
+Responsabilidades:
+
+* Treinamento de modelos
+* Validação
+* Inferência offline
+
+---
+
+## 📡 Endpoints
+
+* `GET /health`
+* `GET /`
+* `POST /api/v1/chat/message`
+
+### Exemplo:
 
 ```json
 {
@@ -64,43 +143,75 @@ Exemplo de request:
 }
 ```
 
-## Variaveis de Ambiente
+---
 
-Configuradas em `app/utils/config.py`:
+## ⚙️ Variáveis de Ambiente
 
-- `ENV` (default: `development`)
-- `ALLOWED_ORIGINS` (default: `*`)
-- `TRUSTED_HOSTS` (default: `*`)
-- `OPENAI_API_KEY` (opcional)
-- `LLM_MODEL` (default: `gpt-4o-mini`)
-- `LLM_MAX_TOKENS` (default: `300`)
-- `LLM_TEMPERATURE` (default: `0.4`)
-- `EMERGENCY_PHONE` (default: `192`)
+* `OPENAI_API_KEY`
+* `LLM_MODEL`
+* `LLM_TEMPERATURE`
+* `EMERGENCY_PHONE`
 
-## Executando Localmente
+---
 
-1. Crie e ative o ambiente virtual.
-2. Instale dependencias.
-3. Inicie a API:
+## ▶️ Executando Localmente
 
 ```bash
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+python -m venv .venv
 ```
 
-Acesse: [http://localhost:8000/docs](http://localhost:8000/docs)
+Ativação:
 
-## Docker
-
-Com o compose dentro de `infra/`:
+* Linux/Mac:
 
 ```bash
-cd infra
-docker compose up -d
+source .venv/bin/activate
 ```
 
-## Qualidade de Codigo
+* Windows:
 
-- Dependencia invertida via `ports.py`.
-- Orquestracao desacoplada das implementacoes concretas.
-- Modelos centralizados e tipados.
-- Organizacao por responsabilidade para facilitar testes.
+```bash
+.venv\Scripts\activate
+```
+
+Instalação:
+
+```bash
+pip install -r requirements.txt
+```
+
+Execução:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+Docs:
+http://localhost:8000/docs
+
+---
+
+## 🐳 Docker
+
+```bash
+docker compose up --build -d
+```
+
+---
+
+## 🧪 Testes
+
+```bash
+pytest
+```
+
+---
+
+## ✅ Boas Práticas
+
+* Clean Architecture
+* Inversão de dependência
+* Arquitetura baseada em agentes
+* Código modular e testável
+* Baixo acoplamento entre camadas
+* Preparado para evolução com IA
